@@ -113,3 +113,6 @@ def scale():
     scaled_ingredients = [scale_ingredient(ing, factor) for ing in ingredients]
     steps = []  # not needed here
     return render_template('scaled_result.html', ingredients=scaled_ingredients, steps=steps, servings=new_servings)
+
+if __name__ == '__main__':
+    app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
