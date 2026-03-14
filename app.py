@@ -41,13 +41,23 @@ def parse_recipe_json(data):
     servings = data.get('recipeYield', 4)
     if isinstance(servings, str):
         servings = int(re.search(r'\d+', servings).group()) if re.search(r'\d+', servings) else 4
-    return servings, ingredients, instructions
+    image = data.get('image', '')
+    if isinstance(image, list):
+        image = image[0] if image else ''
+    elif isinstance(image, dict):
+        image = image.get('url', '')
+    cook_time = data.get('cookTime', '')
+    prep_time = data.get('prepTime', '')
+    return servings, ingredients, instructions, image, cook_time, prep_time
 
 def parse_recipe_html(soup):
     # Simple fallback: look for lists
     ingredients = []
     instructions = []
     servings = 4  # default
+    image = ''
+    cook_time = ''
+    prep_time = ''
     
     # Look for servings
     servings_text = soup.find(text=re.compile(r'serves?|yield', re.I))
@@ -76,7 +86,7 @@ def parse_recipe_html(soup):
         if inst_list:
             instructions = [li.get_text(strip=True) for li in inst_list.find_all('li')]
     
-    return servings, ingredients, instructions
+    return servings, ingredients, instructions, image, cook_time, prep_time
     
 def parse_quantity(ingredient):
     # Match quantity at the start: whole number, fraction, or mixed
@@ -113,10 +123,10 @@ def index():
 @app.route('/parse', methods=['POST'])
 def parse():
     url = request.form['url']
-    original_servings, ingredients, steps = fetch_recipe(url)
+    original_servings, ingredients, steps, image, cook_time, prep_time = fetch_recipe(url)
     if original_servings is None:
         return render_template('error.html', error=steps)  # steps is error message
-    return render_template('result.html', ingredients=ingredients, steps=steps, original_servings=original_servings)
+    return render_template('result.html', ingredients=ingredients, steps=steps, original_servings=original_servings, image=image, cook_time=cook_time, prep_time=prep_time)
 
 @app.route('/scale', methods=['POST'])
 def scale():

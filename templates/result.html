@@ -2,30 +2,58 @@
 <html>
 <head>
     <title>Simplified Recipe</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; text-align: center; }
+        .info { display: flex; justify-content: space-around; margin: 20px 0; }
+        .info div { text-align: center; }
+        img { max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0; }
+        ul, ol { background: #f0f0f0; padding: 15px; border-radius: 5px; }
+        li { margin: 5px 0; }
+        form { margin-top: 20px; text-align: center; }
+        input[type="number"] { padding: 5px; width: 60px; }
+        input[type="submit"] { padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        input[type="submit"]:hover { background: #45a049; }
+        a { display: inline-block; margin-top: 20px; color: #007BFF; text-decoration: none; }
+    </style>
 </head>
 <body>
-    <h1>Simplified Recipe</h1>
-    <p><strong>Serves:</strong> {{ original_servings }}</p>
-    <h2>Ingredients</h2>
-    <ul>
-        {% for ingredient in ingredients %}
-        <li>{{ ingredient }}</li>
-        {% endfor %}
-    </ul>
-    <h2>Cooking Instructions</h2>
-    <ol>
-        {% for step in steps %}
-        <li>{{ step }}</li>
-        {% endfor %}
-    </ol>
-    <h2>Scale for Different Servings</h2>
-    <form method="post" action="/scale">
-        <input type="hidden" name="ingredients" value="{{ ingredients|join(',') }}">
-        <input type="hidden" name="original_servings" value="{{ original_servings }}">
-        <label for="new_servings">How many people do you want to feed?</label>
-        <input type="number" name="new_servings" value="{{ original_servings }}" min="1" required><br>
-        <input type="submit" value="Scale Ingredients">
-    </form>
-    <a href="/">Try Another Recipe</a>
+    <div class="container">
+        <h1>🍽️ Simplified Recipe</h1>
+        {% if image %}
+        <img src="{{ image }}" alt="Recipe Image">
+        {% endif %}
+        <div class="info">
+            <div>👥 <strong>Serves:</strong> {{ original_servings }}</div>
+            {% if prep_time %}
+            <div>⏱️ <strong>Prep Time:</strong> {{ prep_time }}</div>
+            {% endif %}
+            {% if cook_time %}
+            <div>🔥 <strong>Cook Time:</strong> {{ cook_time }}</div>
+            {% endif %}
+        </div>
+        <h2>🥕 Ingredients</h2>
+        <ul>
+            {% for ingredient in ingredients %}
+            <li>{{ ingredient }}</li>
+            {% endfor %}
+        </ul>
+        <h2>👨‍🍳 Cooking Instructions</h2>
+        <ol>
+            {% for step in steps %}
+            <li>{{ step }}</li>
+            {% endfor %}
+        </ol>
+        <h2>🔄 Scale for Different Servings</h2>
+        <form method="post" action="/scale">
+            <input type="hidden" name="ingredients" value="{{ ingredients|join(',') }}">
+            <input type="hidden" name="original_servings" value="{{ original_servings }}">
+            <label for="new_servings">How many people do you want to feed? 👥</label>
+            <input type="number" name="new_servings" value="{{ original_servings }}" min="1" required>
+            <input type="submit" value="Scale Ingredients">
+        </form>
+        <a href="/">🔍 Try Another Recipe</a>
+    </div>
 </body>
 </html>

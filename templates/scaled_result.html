@@ -2,16 +2,29 @@
 <html>
 <head>
     <title>Scaled Recipe</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; text-align: center; }
+        .info { text-align: center; margin: 20px 0; }
+        ul { background: #f0f0f0; padding: 15px; border-radius: 5px; }
+        li { margin: 5px 0; }
+        a { display: inline-block; margin-top: 20px; color: #007BFF; text-decoration: none; }
+    </style>
 </head>
 <body>
-    <h1>Scaled Recipe</h1>
-    <p><strong>Serves:</strong> {{ servings }}</p>
-    <h2>Ingredients</h2>
-    <ul>
-        {% for ingredient in ingredients %}
-        <li>{{ ingredient }}</li>
-        {% endfor %}
-    </ul>
-    <a href="/">Simplify Another Recipe</a>
+    <div class="container">
+        <h1>🔄 Scaled Recipe</h1>
+        <div class="info">
+            <p>👥 <strong>Serves:</strong> {{ servings }}</p>
+        </div>
+        <h2>🥕 Updated Ingredients</h2>
+        <ul>
+            {% for ingredient in ingredients %}
+            <li>{{ ingredient }}</li>
+            {% endfor %}
+        </ul>
+        <a href="/">🔍 Simplify Another Recipe</a>
+    </div>
 </body>
 </html>
