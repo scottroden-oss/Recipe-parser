@@ -36,7 +36,7 @@ def fetch_recipe(url):
         return None, [], [], str(e)
 
 def parse_recipe_json(data):
-    ingredients = data.get('recipeIngredient', [])
+    ingredients = [format_ingredient(ing) for ing in data.get('recipeIngredient', [])]
     instructions = [step.get('text', '') if isinstance(step, dict) else str(step) for step in data.get('recipeInstructions', [])]
     servings = data.get('recipeYield', 4)
     if isinstance(servings, str):
@@ -60,21 +60,31 @@ def parse_recipe_html(soup):
     prep_time = ''
     
     # Look for servings
-    servings_text = soup.find(text=re.compile(r'serves?|yield', re.I))
-    if servings_text:
-        match = re.search(r'\d+', servings_text)
+    servings = 4  # default
+    # Try to find elements with servings info
+    servings_elem = soup.find(['span', 'div', 'p'], class_=re.compile(r'servings?|yield', re.I))
+    if servings_elem:
+        text = servings_elem.get_text()
+        match = re.search(r'\d+', text)
         if match:
             servings = int(match.group())
+    else:
+        # Fallback: search in text
+        servings_text = soup.find(text=re.compile(r'serves?\s*\d+|yield\s*\d+', re.I))
+        if servings_text:
+            match = re.search(r'\d+', servings_text)
+            if match:
+                servings = int(match.group())
     
     # Ingredients: look for li with class containing 'ingredient'
     ing_items = soup.find_all('li', class_=re.compile(r'ingredient', re.I))
     if ing_items:
-        ingredients = [li.get_text(strip=True) for li in ing_items]
+        ingredients = [format_ingredient(li.get_text(strip=True)) for li in ing_items]
     else:
         # Fallback: look for ul/ol with class containing 'ingredient'
         ing_list = soup.find(['ul', 'ol'], class_=re.compile(r'ingredient', re.I))
         if ing_list:
-            ingredients = [li.get_text(strip=True) for li in ing_list.find_all('li')]
+            ingredients = [format_ingredient(li.get_text(strip=True)) for li in ing_list.find_all('li')]
     
     # Instructions: look for li with class containing 'instruction' or 'step'
     inst_items = soup.find_all('li', class_=re.compile(r'instruction|step|method', re.I))
@@ -108,12 +118,12 @@ def parse_quantity(ingredient):
         return qty, rest
     return None, ingredient.strip()
 
-def scale_ingredient(ingredient, factor):
-    qty, rest = parse_quantity(ingredient)
-    if qty is not None:
-        new_qty = qty * factor
-        # Format as decimal for simplicity
-        return f"{new_qty:.2f} {rest}"
+def format_ingredient(ingredient):
+    # Add space between quantity and unit if missing
+    # Pattern: number followed by letters
+    ingredient = re.sub(r'(\d)([a-zA-Z])', r'\1 \2', ingredient)
+    # Also handle fractions like 1/2cup -> 1/2 cup
+    ingredient = re.sub(r'(\d/\d)([a-zA-Z])', r'\1 \2', ingredient)
     return ingredient
 
 @app.route('/')
