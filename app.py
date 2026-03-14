@@ -53,15 +53,25 @@ def parse_recipe_html(soup):
         if match:
             servings = int(match.group())
     
-    # Ingredients: look for ul or ol with class containing 'ingredient'
-    ing_list = soup.find(['ul', 'ol'], class_=re.compile(r'ingredient', re.I))
-    if ing_list:
-        ingredients = [li.get_text(strip=True) for li in ing_list.find_all('li')]
+    # Ingredients: look for li with class containing 'ingredient'
+    ing_items = soup.find_all('li', class_=re.compile(r'ingredient', re.I))
+    if ing_items:
+        ingredients = [li.get_text(strip=True) for li in ing_items]
+    else:
+        # Fallback: look for ul/ol with class containing 'ingredient'
+        ing_list = soup.find(['ul', 'ol'], class_=re.compile(r'ingredient', re.I))
+        if ing_list:
+            ingredients = [li.get_text(strip=True) for li in ing_list.find_all('li')]
     
-    # Instructions
-    inst_list = soup.find(['ul', 'ol'], class_=re.compile(r'instruction|step|method', re.I))
-    if inst_list:
-        instructions = [li.get_text(strip=True) for li in inst_list.find_all('li')]
+    # Instructions: look for li with class containing 'instruction' or 'step'
+    inst_items = soup.find_all('li', class_=re.compile(r'instruction|step|method', re.I))
+    if inst_items:
+        instructions = [li.get_text(strip=True) for li in inst_items]
+    else:
+        # Fallback
+        inst_list = soup.find(['ul', 'ol'], class_=re.compile(r'instruction|step|method', re.I))
+        if inst_list:
+            instructions = [li.get_text(strip=True) for li in inst_list.find_all('li')]
     
     return servings, ingredients, instructions
     
