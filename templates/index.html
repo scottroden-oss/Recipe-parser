@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Recipe Parser</title>
+</head>
+<body>
+    <h1>Recipe Parser and Scaler</h1>
+    <form method="post" action="/parse">
+        <label for="recipe">Paste the entire recipe:</label><br>
+        <textarea name="recipe" rows="20" cols="80"></textarea><br>
+        <label for="original_servings">Original number of servings:</label>
+        <input type="number" name="original_servings" value="4"><br>
+        <label for="servings">Desired number of servings:</label>
+        <input type="number" name="servings" value="4"><br>
+        <input type="submit" value="Parse and Scale">
+    </form>
+</body>
+</html>

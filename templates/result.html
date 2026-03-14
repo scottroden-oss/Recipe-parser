@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Parsed Recipe</title>
+</head>
+<body>
+    <h1>Parsed Recipe</h1>
+    <h2>Ingredients</h2>
+    <ul>
+        {% for ingredient in ingredients %}
+        <li>{{ ingredient }}</li>
+        {% endfor %}
+    </ul>
+    <h2>Steps</h2>
+    <ol>
+        {% for step in steps %}
+        <li>{{ step }}</li>
+        {% endfor %}
+    </ol>
+    <a href="/">Back</a>
+</body>
+</html>
