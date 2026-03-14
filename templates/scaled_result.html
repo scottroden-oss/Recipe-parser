@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Scaled Recipe</title>
+</head>
+<body>
+    <h1>Scaled Recipe</h1>
+    <p><strong>Serves:</strong> {{ servings }}</p>
+    <h2>Ingredients</h2>
+    <ul>
+        {% for ingredient in ingredients %}
+        <li>{{ ingredient }}</li>
+        {% endfor %}
+    </ul>
+    <a href="/">Simplify Another Recipe</a>
+</body>
+</html>

@@ -1,22 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Parsed Recipe</title>
+    <title>Simplified Recipe</title>
 </head>
 <body>
-    <h1>Parsed Recipe</h1>
+    <h1>Simplified Recipe</h1>
+    <p><strong>Serves:</strong> {{ original_servings }}</p>
     <h2>Ingredients</h2>
     <ul>
         {% for ingredient in ingredients %}
         <li>{{ ingredient }}</li>
         {% endfor %}
     </ul>
-    <h2>Steps</h2>
+    <h2>Cooking Instructions</h2>
     <ol>
         {% for step in steps %}
         <li>{{ step }}</li>
         {% endfor %}
     </ol>
-    <a href="/">Back</a>
+    <h2>Scale for Different Servings</h2>
+    <form method="post" action="/scale">
+        <input type="hidden" name="ingredients" value="{{ ingredients|join(',') }}">
+        <input type="hidden" name="original_servings" value="{{ original_servings }}">
+        <label for="new_servings">How many people do you want to feed?</label>
+        <input type="number" name="new_servings" value="{{ original_servings }}" min="1" required><br>
+        <input type="submit" value="Scale Ingredients">
+    </form>
+    <a href="/">Try Another Recipe</a>
 </body>
 </html>
