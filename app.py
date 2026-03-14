@@ -63,6 +63,8 @@ def parse_recipe_html(soup):
     if inst_list:
         instructions = [li.get_text(strip=True) for li in inst_list.find_all('li')]
     
+    return servings, ingredients, instructions
+    
 def parse_quantity(ingredient):
     # Match quantity at the start: whole number, fraction, or mixed
     match = re.match(r'(\d+(?:\s+\d+/\d+)?|\d+/\d+)', ingredient.strip())
