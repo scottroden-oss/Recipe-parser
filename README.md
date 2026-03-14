@@ -1,12 +1,12 @@
-# Recipe Parser and Scaler
+# Recipe Simplifier
 
-A Flask web app that parses raw recipe text to extract ingredients and steps, and scales ingredients based on the number of servings.
+A Flask web app that fetches recipes from URLs, extracts ingredients and cooking instructions, displays the number of servings, and allows scaling for different numbers of people.
 
 ## Features
 
-- Paste any recipe text (with ads, spacing, etc.)
-- Automatically extracts ingredients and steps
-- Scales ingredient quantities for different serving sizes
+- Enter a recipe URL to automatically fetch and parse the recipe
+- Extracts ingredients, cooking instructions, and original servings
+- Scale ingredient quantities for a different number of servings
 
 ## Setup
 
