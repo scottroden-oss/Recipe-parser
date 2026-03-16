@@ -3,9 +3,28 @@ import re
 import os
 import json
 import requests
+import random
 from bs4 import BeautifulSoup
 
 app = Flask(__name__)
+
+# Famous chef quotes for encouragement
+CHEF_QUOTES = [
+    {"chef": "Gordon Ramsay", "emoji": "👨‍🍳", "quote": "This is your chance to make something spectacular. Don't mess it up!"},
+    {"chef": "Gordon Ramsay", "emoji": "👨‍🍳", "quote": "Come on! Put some heart into it! This dish deserves passion!"},
+    {"chef": "Gordon Ramsay", "emoji": "👨‍🍳", "quote": "Beautiful! Now keep that momentum going!"},
+    {"chef": "Julia Child", "emoji": "👩‍🍳", "quote": "You're doing wonderfully! Remember, no one's watching your mistakes."},
+    {"chef": "Julia Child", "emoji": "👩‍🍳", "quote": "The only time to eat diet food is while you're waiting for the steak to cook!"},
+    {"chef": "Anthony Bourdain", "emoji": "😎", "quote": "Skills can be taught. Character you either have or you don't have."},
+    {"chef": "Jacques Pépin", "emoji": "👨‍🍳", "quote": "You're doing great! Cooking is about technique, not perfection."},
+    {"chef": "Ina Garten", "emoji": "👩‍🍳", "quote": "How easy is that? You've got this!"},
+    {"chef": "Jamie Oliver", "emoji": "👨‍🍳", "quote": "Lovely! Just lovely! Keep up the good work!"},
+    {"chef": "Bobby Flay", "emoji": "🔥", "quote": "Bold flavors require bold confidence. You're crushing it!"},
+]
+
+def get_random_chef_quote():
+    """Get a random encouraging chef quote"""
+    return random.choice(CHEF_QUOTES)
 
 def fetch_recipe(url):
     try:
@@ -255,7 +274,13 @@ def parse():
     original_servings, ingredients, steps, image, cook_time, prep_time = fetch_recipe(url)
     if original_servings is None:
         return render_template('error.html', error=steps)  # steps is error message
-    return render_template('result.html', ingredients=ingredients, steps=steps, original_servings=original_servings, image=image, cook_time=cook_time, prep_time=prep_time)
+
+    # Add chef quotes throughout the recipe
+    chef_quotes = [get_random_chef_quote() for _ in range(3)]  # Get 3 random quotes
+
+    return render_template('result.html', ingredients=ingredients, steps=steps,
+                         original_servings=original_servings, image=image,
+                         cook_time=cook_time, prep_time=prep_time, chef_quotes=chef_quotes)
 
 @app.route('/scale', methods=['POST'])
 def scale():
@@ -274,7 +299,12 @@ def scale():
     new_servings = int(request.form['new_servings'])
     factor = new_servings / original_servings if original_servings else 1
     scaled_ingredients = [scale_ingredient(ing, factor) for ing in ingredients]
-    return render_template('scaled_result.html', ingredients=scaled_ingredients, steps=steps, servings=new_servings)
+
+    # Add chef quotes
+    chef_quotes = [get_random_chef_quote() for _ in range(3)]
+
+    return render_template('scaled_result.html', ingredients=scaled_ingredients,
+                         steps=steps, servings=new_servings, chef_quotes=chef_quotes)
 
 if __name__ == '__main__':
     app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
