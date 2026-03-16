@@ -10,6 +10,17 @@
         ul { background: #f0f0f0; padding: 15px; border-radius: 5px; }
         li { margin: 5px 0; }
         a { display: inline-block; margin-top: 20px; color: #007BFF; text-decoration: none; }
+        .print-button { background: #007BFF; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 20px 10px; }
+        .print-button:hover { background: #0056b3; }
+
+        /* Print styles */
+        @media print {
+            body { background-color: white; margin: 0; }
+            .container { box-shadow: none; max-width: 100%; }
+            .print-button, a { display: none !important; }
+            .chef-quote { page-break-inside: avoid; }
+            h2 { page-break-after: avoid; }
+        }
     </style>
 </head>
 <body>
@@ -40,7 +51,10 @@
             {% endfor %}
         </ol>
         {% endif %}
-        <a href="/">🔍 Simplify Another Recipe</a>
+        <div style="text-align: center; margin-top: 20px;">
+            <button class="print-button" onclick="window.print()">🖨️ Print Scaled Recipe</button>
+            <a href="/">🔍 Simplify Another Recipe</a>
+        </div>
     </div>
 </body>
 </html>
