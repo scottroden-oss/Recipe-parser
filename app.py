@@ -137,15 +137,18 @@ def parse_recipe_html(soup):
     
 def parse_quantity(ingredient):
     # Match quantity at the start: whole number, fraction, or mixed
-    match = re.match(r'(\d+(?:\s+\d+/\d+)?|\d+/\d+)', ingredient.strip())
+    # Try fraction first, then mixed number, then whole number
+    match = re.match(r'(\d+\s+\d+/\d+|\d+/\d+|\d+(?:\.\d+)?)', ingredient.strip())
     if match:
         qty_str = match.group(1)
         if '/' in qty_str:
             parts = qty_str.split()
             if len(parts) == 1:
+                # Just a fraction like "1/2"
                 num, den = map(int, parts[0].split('/'))
                 qty = num / den
             else:
+                # Mixed number like "1 1/2"
                 whole = int(parts[0])
                 num, den = map(int, parts[1].split('/'))
                 qty = whole + num / den
@@ -185,6 +188,62 @@ def parse_duration(duration_str):
         parts.append(f"{s} sec")
 
     return ' '.join(parts) if parts else ''
+
+def scale_ingredient(ingredient, factor):
+    """Scale ingredient quantities by a factor"""
+    qty, rest = parse_quantity(ingredient)
+    if qty is None:
+        return ingredient  # No quantity found, return as-is
+
+    scaled_qty = qty * factor
+
+    # Format the scaled quantity nicely
+    if scaled_qty == int(scaled_qty):
+        # Whole number
+        qty_str = str(int(scaled_qty))
+    elif abs(scaled_qty % 0.25) < 0.01:
+        # Quarter fractions (includes halves)
+        whole = int(scaled_qty)
+        frac = scaled_qty - whole
+
+        if abs(frac - 0.25) < 0.01:
+            frac_str = "1/4"
+        elif abs(frac - 0.5) < 0.01:
+            frac_str = "1/2"
+        elif abs(frac - 0.75) < 0.01:
+            frac_str = "3/4"
+        else:
+            frac_str = ""
+
+        if whole == 0:
+            qty_str = frac_str
+        elif frac_str:
+            qty_str = f"{whole} {frac_str}"
+        else:
+            qty_str = str(whole)
+    elif abs(scaled_qty % (1/3)) < 0.02:  # Close to 1/3
+        # Third fractions
+        whole = int(scaled_qty)
+        frac = scaled_qty - whole
+
+        if abs(frac - 1/3) < 0.02:
+            frac_str = "1/3"
+        elif abs(frac - 2/3) < 0.02:
+            frac_str = "2/3"
+        else:
+            frac_str = ""
+
+        if whole == 0 and frac_str:
+            qty_str = frac_str
+        elif frac_str:
+            qty_str = f"{whole} {frac_str}"
+        else:
+            qty_str = str(whole)
+    else:
+        # Round to 2 decimal places
+        qty_str = f"{scaled_qty:.2f}".rstrip('0').rstrip('.')
+
+    return f"{qty_str} {rest}"
 
 @app.route('/')
 def index():
