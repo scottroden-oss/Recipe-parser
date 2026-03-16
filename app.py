@@ -59,7 +59,7 @@ def fetch_recipe(url):
         # Fallback: simple HTML parsing
         return parse_recipe_html(soup)
     except Exception as e:
-        return None, [], [], str(e)
+        return None, [], [], '', '', str(e)
 
 def parse_recipe_json(data):
     ingredients = [format_ingredient(ing) for ing in data.get('recipeIngredient', [])]
