@@ -24,6 +24,14 @@
             <li>{{ ingredient }}</li>
             {% endfor %}
         </ul>
+        {% if steps %}
+        <h2>👨‍🍳 Cooking Instructions</h2>
+        <ol style="background: #f0f0f0; padding: 15px; border-radius: 5px;">
+            {% for step in steps %}
+            <li style="margin: 5px 0;">{{ step }}</li>
+            {% endfor %}
+        </ol>
+        {% endif %}
         <a href="/">🔍 Simplify Another Recipe</a>
     </div>
 </body>

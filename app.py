@@ -260,12 +260,13 @@ def parse():
 @app.route('/scale', methods=['POST'])
 def scale():
     ingredients_str = request.form['ingredients']
-    ingredients = ingredients_str.split(',')
+    ingredients = ingredients_str.split('|||')
+    steps_str = request.form.get('steps', '')
+    steps = steps_str.split('|||') if steps_str else []
     original_servings = int(request.form['original_servings'])
     new_servings = int(request.form['new_servings'])
     factor = new_servings / original_servings if original_servings else 1
     scaled_ingredients = [scale_ingredient(ing, factor) for ing in ingredients]
-    steps = []  # not needed here
     return render_template('scaled_result.html', ingredients=scaled_ingredients, steps=steps, servings=new_servings)
 
 if __name__ == '__main__':

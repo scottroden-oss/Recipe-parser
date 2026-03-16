@@ -47,7 +47,8 @@
         </ol>
         <h2>🔄 Scale for Different Servings</h2>
         <form method="post" action="/scale">
-            <input type="hidden" name="ingredients" value="{{ ingredients|join(',') }}">
+            <input type="hidden" name="ingredients" value="{{ ingredients|join('|||') }}">
+            <input type="hidden" name="steps" value="{{ steps|join('|||') }}">
             <input type="hidden" name="original_servings" value="{{ original_servings }}">
             <label for="new_servings">How many people do you want to feed? 👥</label>
             <input type="number" name="new_servings" value="{{ original_servings }}" min="1" required>
