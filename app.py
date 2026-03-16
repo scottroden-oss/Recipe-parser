@@ -73,8 +73,8 @@ def parse_recipe_json(data):
         image = image[0] if image else ''
     elif isinstance(image, dict):
         image = image.get('url', '')
-    cook_time = data.get('cookTime', '')
-    prep_time = data.get('prepTime', '')
+    cook_time = parse_duration(data.get('cookTime', ''))
+    prep_time = parse_duration(data.get('prepTime', ''))
     return servings, ingredients, instructions, image, cook_time, prep_time
 
 def parse_recipe_html(soup):
@@ -162,6 +162,29 @@ def format_ingredient(ingredient):
     # Also handle fractions like 1/2cup -> 1/2 cup
     ingredient = re.sub(r'(\d/\d)([a-zA-Z])', r'\1 \2', ingredient)
     return ingredient
+
+def parse_duration(duration_str):
+    """Convert ISO 8601 duration (e.g., PT15M, PT1H30M) to readable format"""
+    if not duration_str or not isinstance(duration_str, str):
+        return ''
+
+    # Match PT[hours]H[minutes]M[seconds]S pattern
+    hours = re.search(r'(\d+)H', duration_str)
+    minutes = re.search(r'(\d+)M', duration_str)
+    seconds = re.search(r'(\d+)S', duration_str)
+
+    parts = []
+    if hours:
+        h = int(hours.group(1))
+        parts.append(f"{h} hr" if h == 1 else f"{h} hrs")
+    if minutes:
+        m = int(minutes.group(1))
+        parts.append(f"{m} min")
+    if seconds and not (hours or minutes):  # Only show seconds if no hours/minutes
+        s = int(seconds.group(1))
+        parts.append(f"{s} sec")
+
+    return ' '.join(parts) if parts else ''
 
 @app.route('/')
 def index():
