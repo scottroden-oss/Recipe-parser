@@ -63,7 +63,24 @@ def fetch_recipe(url):
 
 def parse_recipe_json(data):
     ingredients = [format_ingredient(ing) for ing in data.get('recipeIngredient', [])]
-    instructions = [step.get('text', '') if isinstance(step, dict) else str(step) for step in data.get('recipeInstructions', [])]
+
+    # Parse instructions - handle different formats
+    instructions = []
+    raw_instructions = data.get('recipeInstructions', [])
+    for step in raw_instructions:
+        if isinstance(step, dict):
+            # Check if it's a HowToSection with nested steps
+            if step.get('@type') == 'HowToSection' and 'itemListElement' in step:
+                # Extract all steps from the section
+                for substep in step['itemListElement']:
+                    if isinstance(substep, dict) and 'text' in substep:
+                        instructions.append(substep['text'])
+            # Regular HowToStep
+            elif 'text' in step:
+                instructions.append(step['text'])
+        elif isinstance(step, str):
+            instructions.append(step)
+
     servings = data.get('recipeYield', 4)
 
     # Handle different recipeYield formats
