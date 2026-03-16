@@ -49,7 +49,7 @@ def fetch_recipe(url):
         }
         response = requests.get(url, timeout=10, headers=headers)
         response.raise_for_status()
-        soup = BeautifulSoup(response.content, 'html.parser')
+        soup = BeautifulSoup(response.content, 'lxml')
         
         # Try to find JSON-LD
         scripts = soup.find_all('script', type='application/ld+json')
@@ -307,6 +307,10 @@ def parse():
     original_servings, ingredients, steps, image, cook_time, prep_time = fetch_recipe(url)
     if original_servings is None:
         return render_template('error.html', error=steps)  # steps is error message
+
+    # Check if we got any data
+    if not ingredients and not steps:
+        return render_template('error.html', error="Could not extract recipe data from this URL. The site may be blocking automated requests or doesn't have structured recipe data.")
 
     # Add chef quotes throughout the recipe
     chef_quotes = [get_random_chef_quote() for _ in range(3)]  # Get 3 random quotes
