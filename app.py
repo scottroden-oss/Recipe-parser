@@ -6,7 +6,13 @@ import requests
 import random
 from bs4 import BeautifulSoup
 
-app = Flask(__name__)
+# Get the directory where app.py is located
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+# Configure Flask with explicit paths for Vercel serverless
+app = Flask(__name__,
+            template_folder=os.path.join(basedir, 'templates'),
+            static_folder=os.path.join(basedir, 'static'))
 
 # Famous chef quotes for encouragement
 CHEF_QUOTES = [
