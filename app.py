@@ -21,10 +21,17 @@ def fetch_recipe(url):
         for script in scripts:
             try:
                 data = json.loads(script.string)
+                # Check if data is a list
                 if isinstance(data, list):
                     for item in data:
                         if item.get('@type') == 'Recipe':
                             return parse_recipe_json(item)
+                # Check if data has @graph (common pattern)
+                elif '@graph' in data:
+                    for item in data['@graph']:
+                        if item.get('@type') == 'Recipe':
+                            return parse_recipe_json(item)
+                # Check if data itself is a Recipe
                 elif data.get('@type') == 'Recipe':
                     return parse_recipe_json(data)
             except json.JSONDecodeError:
@@ -39,8 +46,28 @@ def parse_recipe_json(data):
     ingredients = [format_ingredient(ing) for ing in data.get('recipeIngredient', [])]
     instructions = [step.get('text', '') if isinstance(step, dict) else str(step) for step in data.get('recipeInstructions', [])]
     servings = data.get('recipeYield', 4)
-    if isinstance(servings, str):
+
+    # Handle different recipeYield formats
+    if isinstance(servings, list):
+        # Try to find a number in the list
+        for item in servings:
+            if isinstance(item, (int, float)):
+                servings = int(item)
+                break
+            elif isinstance(item, str):
+                match = re.search(r'\d+', item)
+                if match:
+                    servings = int(match.group())
+                    break
+        else:
+            servings = 4  # default if nothing found
+    elif isinstance(servings, str):
         servings = int(re.search(r'\d+', servings).group()) if re.search(r'\d+', servings) else 4
+    elif not isinstance(servings, (int, float)):
+        servings = 4
+    else:
+        servings = int(servings)
+
     image = data.get('image', '')
     if isinstance(image, list):
         image = image[0] if image else ''
@@ -58,19 +85,29 @@ def parse_recipe_html(soup):
     image = ''
     cook_time = ''
     prep_time = ''
-    
-    # Look for servings
+
+    # Look for servings - be smarter about finding the actual value
     servings = 4  # default
-    # Try to find elements with servings info
-    servings_elem = soup.find(['span', 'div', 'p'], class_=re.compile(r'servings?|yield', re.I))
+
+    # Try specific servings elements first (avoid adjustment buttons)
+    servings_elem = soup.find('span', class_=re.compile(r'^wprm-recipe-servings\b', re.I))
+    if not servings_elem:
+        servings_elem = soup.find(['span', 'div'], class_=re.compile(r'recipe-servings(?!.*adjust)', re.I))
+    if not servings_elem:
+        servings_elem = soup.find(['span', 'div', 'p'], class_=re.compile(r'yield', re.I))
+
     if servings_elem:
-        text = servings_elem.get_text()
-        match = re.search(r'\d+', text)
-        if match:
-            servings = int(match.group())
-    else:
-        # Fallback: search in text
-        servings_text = soup.find(text=re.compile(r'serves?\s*\d+|yield\s*\d+', re.I))
+        # Avoid picking up adjustment buttons (1x, 2x, 3x)
+        text = servings_elem.get_text(strip=True)
+        # Skip if it looks like adjustment buttons (e.g., "1x2x3x")
+        if not re.search(r'\d+x\d+x', text):
+            match = re.search(r'\d+', text)
+            if match:
+                servings = int(match.group())
+
+    # Fallback: search in text
+    if servings == 4:
+        servings_text = soup.find(text=re.compile(r'serves?\s*\d+|yield\s*:?\s*\d+', re.I))
         if servings_text:
             match = re.search(r'\d+', servings_text)
             if match:
